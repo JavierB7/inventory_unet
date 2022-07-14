@@ -1,0 +1,29 @@
+.home-component {
+  padding: 60px 0;
+  background: linear-gradient(to top, rgba($color-gray,0.6), $color-primary), url("~assets/images/home/background-home.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  height: 100vh;
+  display: flex;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
+  .home-title {
+    font-size: 40px;
+    line-height: 50px;
+    margin: 20px 0 15px;
+  }
+}
+
+.font-logo {
+  color: white;
+  font-size: 45px;
+}
+
+.bottom-home {
+  color: white !important;
+}
+
+.chip-home {
+  margin: 10px;
+}

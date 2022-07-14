@@ -1,11 +1,11 @@
 <template>
   <v-app dark>
     <!--v-if="$route.name!=='login'"-->
-    <Header />
+    <Header v-if="$route.name!=='index' && $route.name!=='login'" />
     <v-main>
       <nuxt />
     </v-main>
-    <Footer />
+    <Footer v-if="$route.name!=='index' && $route.name!=='login'" />
   </v-app>
 </template>
 
@@ -13,18 +13,11 @@
 export default {
   head() {
     return {
-      title: "NuxtJs UI kit | Free UI kit built with Vuetify",
-      meta: [
-        {
-          hid: "description",
-          name: "NuxtJs UI kit",
-          content: "NuxtJs UI kit is the best way"
-        }
-      ]
+      title: "J. Garcia"
     };
   },
   components: {
-    Header: () => import("@/layouts/sections/Header"),
+    Header: () => import("@/components/custom/header/MainHeader"),
     Footer: () => import("@/layouts/sections/Footer")
   },
   methods: {}

@@ -1,14 +1,16 @@
 <template>
-  <div>
-    <BannerHome />
-  </div>
+  <v-container>
+    <div>
+        <h1>Usuarios</h1>
+    </div>
+  </v-container>
 </template>
 
 <script>
 export default {
   head() {
     return {
-      title: "Inicio"
+      title: "Usuarios"
     };
   },
 
@@ -16,7 +18,7 @@ export default {
     return {};
   },
   components: {
-    BannerHome: () => import("@/components/custom/banner/BannerHome"),
+    
   },
 };
 </script>
