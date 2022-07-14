@@ -1,3 +1,11 @@
+const ApolloClientConfigDevelopment = {
+  httpEndpoint: process.env.APP_GRAPHQL_ENDPOINT,
+  httpLinkOptions: {
+    headers: {
+      ["x-hasura-admin-secret"]: process.env.HASURA_GRAPHQL_ADMIN_SECRET,
+    },
+  },
+};
 export default {
   // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
   ssr: false,
@@ -41,7 +49,12 @@ export default {
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
-  modules: [],
+  modules: ['@nuxtjs/apollo'],
+  apollo: {
+    clientConfigs: {
+      default: { ...ApolloClientConfigDevelopment },
+    },
+  },
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
   vuetify: {
