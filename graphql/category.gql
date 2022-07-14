@@ -1,0 +1,50 @@
+query Categories($active: Boolean!) {
+  category(where: {active: {_eq: $active}}){
+    id
+    name
+    description
+    active
+    create_by {
+      id
+      name
+    }
+    updatedby{
+      id
+      name
+    }
+  }
+}
+
+mutation CreateCategory($name: String, $description: String, $user: Int) {
+  insert_category_one(object: {name: $name, description: $description, last_updated_by_id: $user, created_by_id: $user}) {
+    id
+  }
+}
+
+mutation EditCategory(
+  $id: Int
+  $name: String
+  $description: String
+  $user: Int
+) {
+  update_category(
+    where: { id: { _eq: $id } }
+    _set: {
+      description: $description
+      name: $name
+      last_updated_by_id: $user
+    }
+  ) {
+    affected_rows
+  }
+}
+
+
+mutation DeleteCategory($id: Int, $user: Int, $active: Boolean) {
+  update_category(
+    where: { id: { _eq: $id } }
+    _set: { active: $active, last_updated_by_id: $user }
+  ) {
+    affected_rows
+  }
+}
