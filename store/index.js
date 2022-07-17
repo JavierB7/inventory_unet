@@ -2,6 +2,11 @@ import Vue from "vue";
 import Vuex from "vuex";
 
 import { CreateBrand, DeleteBrand, EditBrand } from "../graphql/brand.gql";
+import {
+  CreateContact,
+  EditContact,
+  DeleteContact
+} from "../graphql/contact.gql";
 Vue.use(Vuex);
 
 const store = () => {
@@ -37,6 +42,36 @@ const store = () => {
         try {
           let response = await this.app.apolloProvider.defaultClient.mutate({
             mutation: EditBrand,
+            variables: { ...variables }
+          });
+        } catch (e) {
+          console.log("Error ", e);
+        }
+      },
+      async editContact({ commit }, variables) {
+        try {
+          let response = await this.app.apolloProvider.defaultClient.mutate({
+            mutation: EditContact,
+            variables: { ...variables }
+          });
+        } catch (e) {
+          console.log("Error ", e);
+        }
+      },
+      async deleteContact({ commit }, variables) {
+        try {
+          let response = await this.app.apolloProvider.defaultClient.mutate({
+            mutation: DeleteContact,
+            variables: { ...variables }
+          });
+        } catch (e) {
+          console.log("Error ", e);
+        }
+      },
+      async createContact({ commit }, variables) {
+        try {
+          let response = await this.app.apolloProvider.defaultClient.mutate({
+            mutation: CreateContact,
             variables: { ...variables }
           });
         } catch (e) {
