@@ -3,6 +3,11 @@ import Vuex from "vuex";
 
 import { CreateBrand, DeleteBrand, EditBrand } from "../graphql/brand.gql";
 import {
+  CreateProduct,
+  EditProduct,
+  DeleteProduct,
+} from "../graphql/product.gql";
+import {
   CreateContact,
   EditContact,
   DeleteContact
@@ -44,6 +49,37 @@ const store = () => {
             mutation: EditBrand,
             variables: { ...variables }
           });
+        } catch (e) {
+          console.log("Error ", e);
+        }
+      },
+      async editProduct({ commit }, variables) {
+        try {
+          let response = await this.app.apolloProvider.defaultClient.mutate({
+            mutation: EditProduct,
+            variables: { ...variables }
+          });
+        } catch (e) {
+          console.log("Error ", e);
+        }
+      },
+      async deleteProduct({ commit }, variables) {
+        try {
+          let response = await this.app.apolloProvider.defaultClient.mutate({
+            mutation: DeleteProduct,
+            variables: { ...variables }
+          });
+        } catch (e) {
+          console.log("Error ", e);
+        }
+      },
+      async createProduct({ commit }, variables) {
+        try {
+          let { data } = await this.app.apolloProvider.defaultClient.mutate({
+            mutation: CreateProduct,
+            variables: { ...variables }
+          });
+          return data.insert_product_one.id;
         } catch (e) {
           console.log("Error ", e);
         }
