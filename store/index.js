@@ -7,6 +7,11 @@ import {
   EditProduct,
   DeleteProduct,
 } from "../graphql/product.gql";
+import {
+  CreateContact,
+  EditContact,
+  DeleteContact
+} from "../graphql/contact.gql";
 Vue.use(Vuex);
 
 const store = () => {
@@ -75,6 +80,36 @@ const store = () => {
             variables: { ...variables }
           });
           return data.insert_product_one.id;
+        } catch (e) {
+          console.log("Error ", e);
+        }
+      },
+      async editContact({ commit }, variables) {
+        try {
+          let response = await this.app.apolloProvider.defaultClient.mutate({
+            mutation: EditContact,
+            variables: { ...variables }
+          });
+        } catch (e) {
+          console.log("Error ", e);
+        }
+      },
+      async deleteContact({ commit }, variables) {
+        try {
+          let response = await this.app.apolloProvider.defaultClient.mutate({
+            mutation: DeleteContact,
+            variables: { ...variables }
+          });
+        } catch (e) {
+          console.log("Error ", e);
+        }
+      },
+      async createContact({ commit }, variables) {
+        try {
+          let response = await this.app.apolloProvider.defaultClient.mutate({
+            mutation: CreateContact,
+            variables: { ...variables }
+          });
         } catch (e) {
           console.log("Error ", e);
         }
