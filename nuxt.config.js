@@ -1,11 +1,4 @@
-const ApolloClientConfigDevelopment = {
-  httpEndpoint: process.env.APP_GRAPHQL_ENDPOINT,
-  httpLinkOptions: {
-    headers: {
-      ["x-hasura-admin-secret"]: process.env.HASURA_GRAPHQL_ADMIN_SECRET,
-    },
-  },
-};
+
 export default {
   // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
   ssr: false,
@@ -70,7 +63,14 @@ export default {
   ],
   apollo: {
     clientConfigs: {
-      default: { ...ApolloClientConfigDevelopment },
+      default: {
+        httpEndpoint: process.env.APP_GRAPHQL_ENDPOINT,
+        httpLinkOptions: {
+          headers: {
+            ["x-hasura-admin-secret"]: process.env.HASURA_GRAPHQL_ADMIN_SECRET,
+          },
+        },
+      },
     },
   },
 
