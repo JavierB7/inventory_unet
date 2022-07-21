@@ -8,6 +8,7 @@ import {
   CreateProduct,
   EditProduct,
   DeleteProduct,
+  EditProductImage
 } from "../graphql/product.gql";
 import {
   CreateContact,
@@ -59,6 +60,16 @@ const store = () => {
         try {
           let response = await this.app.apolloProvider.defaultClient.mutate({
             mutation: EditProduct,
+            variables: { ...variables }
+          });
+        } catch (e) {
+          console.log("Error ", e);
+        }
+      },
+      async editProductImage({ commit }, variables) {
+        try {
+          let response = await this.app.apolloProvider.defaultClient.mutate({
+            mutation: EditProductImage,
             variables: { ...variables }
           });
         } catch (e) {
