@@ -49,7 +49,25 @@ export default {
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
-  modules: ['@nuxtjs/apollo'],
+  modules: [
+    [
+      '@nuxtjs/firebase',
+      {
+        config: {
+          apiKey: process.env.FIREBASE_APIKEY,
+          authDomain: process.env.FIREBASE_AUTHDOMAIN,
+          projectId: process.env.FIREBASE_PROJECTID,
+          storageBucket: process.env.FIREBASE_STORAGEBUCKET,
+          messagingSenderId: process.env.FIREBASE_MESSAGINGSENDERID,
+          appId: process.env.FIREBASE_APPID
+        },
+        services: {
+          storage: true
+        }
+      }
+    ],
+    '@nuxtjs/apollo',
+  ],
   apollo: {
     clientConfigs: {
       default: { ...ApolloClientConfigDevelopment },
