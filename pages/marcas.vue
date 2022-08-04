@@ -39,6 +39,14 @@
                     <span class="text-h5">{{ formTitle }}</span>
                   </v-card-title>
                   <v-card-text>
+                    <div v-if="editedIndex != -1" class="item-info">
+                      <span>Creado por: {{ editedItem.created.name }}</span
+                      ><br />
+                      <span
+                      >Última modificación por:
+                        {{ editedItem.updated.name }}</span
+                      >
+                    </div>
                     <v-container>
                       <v-row>
                         <v-col cols="6">
@@ -109,181 +117,191 @@
 </template>
 
 <script>
-  import { Brands } from "~/graphql/brand.gql";
+import { Brands } from "~/graphql/brand.gql";
 
-  export default {
-    head() {
-      return {
-        title: "Marcas",
-      };
-    },
-    data() {
-      return {
-        valid: true,
-        search: "",
-        dialog: false,
-        dialogDelete: false,
-        brandsInfo: [],
-        headers: [
-          {
-            text: "Código",
-            align: "center",
-            value: "code",
-          },
-          { text: "Nombre", value: "name", align: "center" },
-          {
-            text: "Acciones",
-            value: "actions",
-            sortable: false,
-            align: "center",
-          },
-        ],
-        editedItem: {
-          code: "",
-          name: "",
-          created: "",
-          updated: "",
-        },
-        defaultItem: {
-          code: "",
-          name: "",
-          created: "",
-          updated: "",
-        },
-        editedIndex: -1,
-      };
-    },
-    apollo: {
-      brand: {
-        prefetch: true,
-        query: Brands,
-        pollInterval: 10000,
-        result({ data }) {
-          if (this.brandsInfo.length != 0) {
-            this.brandsInfo = [];
-          }
-          for (let b of data.brand) {
-            this.brandsInfo.push({
-              name: b.name,
-              code: b.code,
-              id: b.id,
-              created: b.created_by,
-              updated: b.updated_by,
-            });
-          }
-        },
-        variables() {
-          return { active: true };
-        },
+export default {
+  head() {
+    return {
+      title: "Marcas",
+    };
+  },
+  apollo: {
+    brand: {
+      prefetch: true,
+      query: Brands,
+      variables() {
+        return { active: true };
       },
     },
-    computed: {
-      formTitle() {
-        return this.editedIndex === -1 ? "Agregar marca" : "Editar marca";
+  },
+  data() {
+    return {
+      valid: true,
+      search: "",
+      dialog: false,
+      dialogDelete: false,
+      brandsInfo: [],
+      headers: [
+        {
+          text: "Código",
+          align: "center",
+          value: "code",
+        },
+        { text: "Nombre", value: "name", align: "center" },
+        {
+          text: "Acciones",
+          value: "actions",
+          sortable: false,
+          align: "center",
+        },
+      ],
+      editedItem: {
+        code: "",
+        name: "",
+        created: "",
+        updated: "",
       },
-    },
-
-    watch: {
-      dialog(val) {
-        val || this.close();
+      defaultItem: {
+        code: "",
+        name: "",
+        created: "",
+        updated: "",
       },
-      dialogDelete(val) {
-        val || this.closeDelete();
-      },
-    },
-    methods: {
-      async createBrand(variables) {
-        const mappedVariables = {
-          code: variables.code,
-          name: variables.name,
-          user: 1,
-        };
-        this.$store
-          .dispatch("createBrand", mappedVariables)
-          .then(async () => {
-            await this.$apollo.queries.brand.refetch();
-          })
-          .catch((err) => {
-            this.error = err.message;
+      editedIndex: -1,
+    };
+  },
+  apollo: {
+    brand: {
+      prefetch: true,
+      query: Brands,
+      pollInterval: 10000,
+      result({ data }) {
+        if (this.brandsInfo.length != 0) {
+          this.brandsInfo = [];
+        }
+        for (let b of data.brand) {
+          this.brandsInfo.push({
+            name: b.name,
+            code: b.code,
+            id: b.id,
+            created: b.created_by,
+            updated: b.updated_by,
           });
-      },
-
-      editItem(item) {
-        this.editedIndex = this.brandsInfo.indexOf(item);
-        this.editedItem = Object.assign({}, item);
-        this.dialog = true;
-      },
-
-      async editBrand(brand) {
-        const mappedVariables = {
-          code: brand.code,
-          name: brand.name,
-          user: 1,
-          id: brand.id,
-        };
-        this.$store
-          .dispatch("editBrand", mappedVariables)
-          .then(async () => {
-            await this.$apollo.queries.brand.refetch();
-          })
-          .catch((err) => {
-            this.error = err.message;
-          });
-      },
-
-      deleteItem(item) {
-        this.editedIndex = this.brandsInfo.indexOf(item);
-        this.editedItem = Object.assign({}, item);
-        this.dialogDelete = true;
-      },
-
-      deleteItemConfirm() {
-        this.brandsInfo.splice(this.editedIndex, 1);
-        const mappedVariables = {
-          active: false,
-          id: this.editedItem.id,
-          user: 1,
-        };
-        this.$store
-          .dispatch("deleteBrand", mappedVariables)
-          .then(async () => {
-            await this.$apollo.queries.product.refetch();
-          })
-          .catch((err) => {
-            this.error = err.message;
-          });
-        this.closeDelete();
-      },
-
-      close() {
-        this.dialog = false;
-        this.$nextTick(() => {
-          this.editedItem = Object.assign({}, this.defaultItem);
-          this.editedIndex = -1;
-        });
-      },
-
-      closeDelete() {
-        this.dialogDelete = false;
-        this.$nextTick(() => {
-          this.editedItem = Object.assign({}, this.defaultItem);
-          this.editedIndex = -1;
-        });
-      },
-      async save() {
-        this.$refs.form.validate();
-
-        if (this.$refs.form.validate()) {
-          if (this.editedIndex > -1) {
-            await this.editBrand(this.editedItem);
-          } else {
-            await this.createBrand(this.editedItem);
-          }
-          this.close();
         }
       },
+      variables() {
+        return { active: true };
+      },
+    },
+  },
+  computed: {
+    userData() { return this.$store.state.user },
+    formTitle() {
+      return this.editedIndex === -1 ? "Agregar marca" : "Editar marca";
+    },
+  },
+
+  watch: {
+    dialog(val) {
+      val || this.close();
+    },
+    dialogDelete(val) {
+      val || this.closeDelete();
+    },
+  },
+  methods: {
+    async createBrand(variables) {
+      const mappedVariables = {
+        code: variables.code,
+        name: variables.name,
+        user: this.userData.id,
+      };
+      this.$store
+        .dispatch("createBrand", mappedVariables)
+        .then(async () => {
+          await this.$apollo.queries.brand.refetch();
+        })
+        .catch((err) => {
+          this.error = err.message;
+        });
     },
 
-    components: {},
-  };
+    editItem(item) {
+      this.editedIndex = this.brandsInfo.indexOf(item);
+      this.editedItem = Object.assign({}, item);
+      this.dialog = true;
+    },
+
+    async editBrand(brand) {
+      const mappedVariables = {
+        code: brand.code,
+        name: brand.name,
+        user: this.userData.id,
+        id: brand.id,
+      };
+      this.$store
+        .dispatch("editBrand", mappedVariables)
+        .then(async () => {
+          await this.$apollo.queries.brand.refetch();
+        })
+        .catch((err) => {
+          this.error = err.message;
+        });
+    },
+
+    deleteItem(item) {
+      this.editedIndex = this.brandsInfo.indexOf(item);
+      this.editedItem = Object.assign({}, item);
+      this.dialogDelete = true;
+    },
+
+    deleteItemConfirm() {
+      this.brandsInfo.splice(this.editedIndex, 1);
+      const mappedVariables = {
+        active: false,
+        id: this.editedItem.id,
+        user: this.userData.id,
+      };
+      this.$store
+        .dispatch("deleteBrand", mappedVariables)
+        .then(async () => {
+          await this.$apollo.queries.product.refetch();
+        })
+        .catch((err) => {
+          this.error = err.message;
+        });
+      this.closeDelete();
+    },
+
+    close() {
+      this.dialog = false;
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem);
+        this.editedIndex = -1;
+      });
+    },
+
+    closeDelete() {
+      this.dialogDelete = false;
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem);
+        this.editedIndex = -1;
+      });
+    },
+    async save() {
+      this.$refs.form.validate();
+
+      if (this.$refs.form.validate()) {
+        if (this.editedIndex > -1) {
+          await this.editBrand(this.editedItem);
+        } else {
+          await this.createBrand(this.editedItem);
+        }
+        this.close();
+      }
+    },
+  },
+
+  components: {},
+};
 </script>
