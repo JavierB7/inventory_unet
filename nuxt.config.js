@@ -57,6 +57,11 @@ export default {
           appId: process.env.FIREBASE_APPID
         },
         services: {
+          auth: {
+            initialize: {
+              onAuthStateChangedMutation: 'ON_AUTH_STATE_CHANGED_MUTATION',
+            },
+          },
           storage: true
         }
       }

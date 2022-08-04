@@ -1,0 +1,68 @@
+query MovementLines($active: Boolean!, $movement: Integer!) {
+  inventory_movement_line(where: {active: {_eq: $active}}){
+    id
+    code
+    product
+    quantity
+    precio
+    movement_type
+  }
+}
+
+mutation CreateOneMoveLine(
+  $code: String
+  $product: Int
+  $quantity: Int
+  $price: money
+  $movement_type: bpchar
+  $inventory_movement_id: Int
+) {
+  insert_inventory_movement_line_one(
+    object: {
+      code: $code
+      product: $product
+      quantity: $quantity
+      price: $price
+      movement_type: $movement_type
+      inventory_movement_id: $inventory_movement_id
+    }
+  ) {
+    id
+  }
+}
+
+mutation EditMoveLine(
+  $id: Int
+  $code: String
+  $product: Int
+  $quantity: Int
+  $price: money
+  $movement_type: bpchar
+) {
+  update_inventory_movement_line(
+    where: { id: { _eq: $id } }
+    _set: {
+      code: $code
+      product: $product
+      quantity: $quantity
+      price: $price
+      movement_type: $movement_type
+    }
+  ) {
+    affected_rows
+  }
+}
+
+mutation CreateMoveLine(
+  $lines: [inventory_movement_line_insert_input!]!
+) {
+  insert_inventory_movement_line (objects: $lines) {
+    affected_rows
+  }
+}
+
+mutation DeleteMoveLines($ids: [Int!]) {
+  delete_inventory_movement_line(where: {id: {_in: $ids}}) {
+    affected_rows
+  }
+}

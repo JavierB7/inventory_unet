@@ -1,0 +1,132 @@
+query Movements {
+  inventory_movement {
+    id
+    number
+    date
+    confirmation_date
+    type
+    delivery_note
+    total_price
+    status
+    user {
+      id
+      name
+    }
+    contact {
+      id
+      name
+    }
+  }
+}
+
+query Movement($id: Int) {
+  inventory_movement(where: { id: { _eq: $id } }) {
+    id
+    number
+    date
+    confirmation_date
+    type
+    delivery_note
+    total_price
+    status
+    updated_by {
+      id
+      name
+    }
+    user {
+      id
+      name
+    }
+    contact {
+      id
+      name
+    }
+    inventory_movement_lines {
+      id
+      code
+      price
+      productLine {
+        id
+        name
+        code
+        stock
+      }
+      quantity
+    }
+  }
+}
+
+mutation CreateMove(
+  $contact: Int
+  $type: bpchar
+  $number: String
+  $total: money
+  $date: date
+  $status: bpchar
+  $deliveryNote: String
+  $user: Int
+) {
+  insert_inventory_movement_one (
+    object: {
+      contact_id: $contact
+      type: $type
+      number: $number
+      total_price: $total
+      date: $date
+      status: $status
+      delivery_note: $deliveryNote
+      last_updated_by_id: $user
+      user_id: $user
+    }
+  ) {
+    id
+  }
+}
+
+mutation UpdateMove(
+  $id: Int
+  $contact: Int
+  $type: bpchar
+  $number: String
+  $user: Int
+  $total: money
+  $deliveryNote: String
+) {
+  update_inventory_movement(
+    where: { id: { _eq: $id } }
+    _set: {
+      contact_id: $contact
+      type: $type
+      number: $number
+      total_price: $total
+      delivery_note: $deliveryNote
+      last_updated_by_id: $user
+    }
+  ) {
+    affected_rows
+  }
+}
+
+mutation ConfirmMove(
+  $id: Int
+  $status: bpchar
+  $user: Int
+) {
+  update_inventory_movement(
+    where: { id: { _eq: $id } }
+    _set: {
+      status: $status
+      confirmation_date: "now()"
+      last_updated_by_id: $user
+    }
+  ) {
+    affected_rows
+  }
+}
+
+mutation DeleteMovement($id: Int) {
+  delete_inventory_movement(where: {id: {_eq: $id}}) {
+    affected_rows
+  }
+}
+

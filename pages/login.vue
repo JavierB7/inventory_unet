@@ -4,7 +4,7 @@
       <v-container fluid fill-height>
         <v-layout align-center justify-center>
           <v-flex xs12 sm8 md4>
-            <h1
+            <h1 
               class="font-logo">INVENTARIO</h1>
             <v-card color="#ffffffb3">
               <v-card-text>
@@ -41,33 +41,60 @@
 </template>
 
 <script>
-  export default {
-    head() {
-      return {
-        title: "Inicia Sesión"
-      };
-    },
-    methods: {
-      async login() {
-        if(this.user === '' || this.password === '') {
-          return;
-        }
+import { UsersByEmail } from "~/graphql/user.gql"
+export default {
+  head() {
+    return {
+      title: "Inicia Sesión"
+    };
+  },
+  methods: {
+    async login() {
+      if(this.user === '' || this.password === ''){
+        return;
       }
-    },
-    data() {
-      return {
-        user: "",
-        password: "",
-        rulesPassword: [
-          value => !!value || 'Requerido.',
-          value => (value && value.length >= 6) || 'Mínimo 6 letras',
-        ],
-        rulesEmail: [
-          value => !!value || 'Requerido.',
-          value => /.+@.+\..+/.test(value) || 'Correo no válido',
-        ],
-      };
-    },
-    components: {}
-  };
+      this.$store
+        .dispatch("signInWithEmail", {
+          email: this.user,
+          password: this.password
+        })
+        .then(async () => {
+          console.log("Inicio de sesión correcto.");
+          let res = await this.$apollo.query({
+            query: UsersByEmail,
+            variables: {
+              email: this.user,
+            },
+          });
+          this.$store.commit('setUser', res.data.user[0]);
+        })
+        .catch(err => {
+          this.error = err.message;
+        });
+    }
+  },
+  watch: {
+    "$store.state.user": function() {
+      const { user } = this.$store.state;
+      if ("uid" in user && user.uid) {
+        this.$router.push("/movimientos");
+      }
+    }
+  },
+  data() {
+    return {
+      user: "",
+      password: "",
+      rulesPassword: [
+        value => !!value || 'Requerido.',
+        value => (value && value.length >= 6) || 'Mínimo 6 letras',
+      ],
+      rulesEmail: [
+        value => !!value || 'Requerido.',
+        value => /.+@.+\..+/.test(value) || 'Correo no válido',
+      ],
+    };
+  },
+  components: {}
+};
 </script>
