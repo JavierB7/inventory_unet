@@ -1,11 +1,4 @@
-const ApolloClientConfigDevelopment = {
-  httpEndpoint: process.env.APP_GRAPHQL_ENDPOINT,
-  httpLinkOptions: {
-    headers: {
-      ["x-hasura-admin-secret"]: process.env.HASURA_GRAPHQL_ADMIN_SECRET,
-    },
-  },
-};
+
 export default {
   // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
   ssr: false,
@@ -38,7 +31,9 @@ export default {
   },
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [],
-
+  router: {
+    middleware: 'router-auth',
+  },
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
 
@@ -49,10 +44,40 @@ export default {
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
-  modules: ['@nuxtjs/apollo'],
+  modules: [
+    [
+      '@nuxtjs/firebase',
+      {
+        config: {
+          apiKey: process.env.FIREBASE_APIKEY,
+          authDomain: process.env.FIREBASE_AUTHDOMAIN,
+          projectId: process.env.FIREBASE_PROJECTID,
+          storageBucket: process.env.FIREBASE_STORAGEBUCKET,
+          messagingSenderId: process.env.FIREBASE_MESSAGINGSENDERID,
+          appId: process.env.FIREBASE_APPID
+        },
+        services: {
+          auth: {
+            initialize: {
+              onAuthStateChangedMutation: 'ON_AUTH_STATE_CHANGED_MUTATION',
+            },
+          },
+          storage: true
+        }
+      }
+    ],
+    '@nuxtjs/apollo',
+  ],
   apollo: {
     clientConfigs: {
-      default: { ...ApolloClientConfigDevelopment },
+      default: {
+        httpEndpoint: process.env.APP_GRAPHQL_ENDPOINT,
+        httpLinkOptions: {
+          headers: {
+            ["x-hasura-admin-secret"]: process.env.HASURA_GRAPHQL_ADMIN_SECRET,
+          },
+        },
+      },
     },
   },
 

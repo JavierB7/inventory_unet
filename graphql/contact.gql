@@ -1,0 +1,80 @@
+query Contacts($active: Boolean!) {
+  contact(where: {active: {_eq: $active}}){
+    id
+    ci
+    name
+    company
+    phonenumber
+    address
+    type
+    created_by {
+      id
+      name
+    }
+    updated_by{
+      id
+      name
+    }
+    active
+  }
+}
+
+mutation CreateContact(
+  $ci: String
+  $name: String
+  $company: String
+  $phonenumber: String
+  $address: String
+  $type: String
+  $user: Int
+) {
+  insert_contact_one(
+    object: {
+      ci: $ci
+      name: $name
+      company: $company
+      phonenumber: $phonenumber
+      address: $address
+      type: $type
+      last_updated_by_id: $user
+      created_by_id: $user
+    }
+  ) {
+    id
+  }
+}
+
+mutation EditContact(
+  $id: Int
+  $ci: String
+  $name: String
+  $company: String
+  $phonenumber: String
+  $address: String
+  $type: String
+  $user: Int
+) {
+  update_contact(
+    where: { id: { _eq: $id } }
+    _set: {
+      ci: $ci
+      name: $name
+      company: $company
+      phonenumber: $phonenumber
+      address: $address
+      type: $type
+      last_updated_by_id: $user
+    }
+  ) {
+    affected_rows
+  }
+}
+
+mutation DeleteContact($id: Int, $user: Int, $active: Boolean) {
+  update_contact(
+    where: { id: { _eq: $id } }
+    _set: { active: $active, last_updated_by_id: $user }
+  ) {
+    affected_rows
+  }
+}
