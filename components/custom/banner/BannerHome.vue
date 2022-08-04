@@ -45,7 +45,7 @@
                   nuxt
                   large
                   rounded
-                  to="/movimientos"
+                  to="/login"
                   class="btn-custom-md bottom-home"
                   depressed
                   color="#23225C"

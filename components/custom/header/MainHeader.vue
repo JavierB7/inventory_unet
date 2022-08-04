@@ -9,16 +9,6 @@
       flat
     >
       <v-container class="py-0 fill-height">
-        <!-- Logo -->
-        <div class="logo">
-          <NLink to="/">
-            <v-img
-              :src="require('@/assets/images/logos/purple-logo.png')"
-              alt="logo"
-            />
-          </NLink>
-        </div>
-
         <v-spacer></v-spacer>
         <v-btn class="d-block d-lg-none" text @click="toggleClass()">
           <v-app-bar-nav-icon />
@@ -51,16 +41,51 @@
           </ul>
         </div>
         <!-- login-regiter -->
-        <v-btn
-          class="d-none d-lg-flex btn-custom-nm ml-3"
-          nuxt
-          outlined
-          color="primary"
-          to="/"
-          elevation="0"
-        >
-          Logout
-        </v-btn>
+        <v-menu
+        bottom
+        min-width="200px"
+        rounded
+        offset-y
+      >
+        <template v-slot:activator="{ on }">
+          <v-btn
+            icon
+            x-large
+            v-on="on"
+          >
+            <v-avatar
+              color="primary"
+              size="48"
+            >
+              <span class="white--text text-h5"> {{userData.initials}}</span>
+            </v-avatar>
+          </v-btn>
+        </template>
+        <v-card>
+          <v-list-item-content class="justify-center">
+            <div class="mx-auto text-center">
+              <v-avatar
+                color="primary"
+              >
+                <span class="white--text text-h5">{{userData.initials}}</span>
+              </v-avatar>
+              <h3>{{userData.name}}</h3>
+              <p class="text-caption mt-1">
+                {{userData.email}}
+              </p>
+              <v-divider class="my-3"></v-divider>
+              <v-btn
+                depressed
+                rounded
+                text
+                @click="logout"
+              >
+                Logout
+              </v-btn>
+            </div>
+          </v-list-item-content>
+        </v-card>
+      </v-menu>
       </v-container>
     </v-app-bar>
     <!-- -----------------------------------------------
@@ -70,17 +95,50 @@
 </template>
 
 <script>
-  export default {
-    name: "MainHeader",
-    data() {
-      return {
-        isActive: false,
-      };
+import { UsersByEmail } from "~/graphql/user.gql"
+export default {
+  name: "MainHeader",
+  data() {
+    return {
+      isActive: false,
+    };
+  },
+  computed: {
+    userData() {
+      return this.$store.state.user 
     },
-    methods: {
-      toggleClass: function (event) {
-        this.isActive = !this.isActive;
+    initials() {
+      return this.userData ? this.userData.name.substring(0, 2) : "V";
+    }
+  },
+  apollo: {
+    user: {
+      prefetch: true,
+      query: UsersByEmail,
+      pollInterval: 10000,
+      result({data}) {
+        this.$store.commit('setUser', data.user[0]);
+      },
+      variables() {
+        return { email: this.$store.state.user.email };
       },
     },
-  };
+  },
+  methods: {
+    toggleClass: function (event) {
+      this.isActive = !this.isActive;
+    },
+    async logout () {
+      this.$store
+        .dispatch('signOut')
+        .then(() => {
+          console.log("Sign out");
+          this.$router.push('/')
+        })
+        .catch((err) => {
+          this.error = err.message
+        })
+    },
+  },
+};
 </script>

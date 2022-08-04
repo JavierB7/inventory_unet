@@ -1,0 +1,70 @@
+query Users($active: Boolean!) {
+  user(where: {active: {_eq: $active}}){
+    id
+    name
+    ci
+    phone_number
+    address
+    email
+    active
+  }
+}
+
+query UsersByEmail($email: String) {
+  user(where: {email: {_eq: $email}}){
+    id
+    name
+    ci
+    phone_number
+    address
+    email
+    active
+  }
+}
+
+mutation CreateUser($ci: String, $name: String, $email: String, $phone_number: String, $address: String) {
+  insert_user_one(object: {
+      name: $name,
+      ci: $ci,
+      email: $email,
+      phone_number: $phone_number,
+      address: $address
+  }) {
+    id
+    ci
+    name
+    email
+    phone_number
+    address
+  }
+}
+
+mutation EditUser(
+  $id: Int
+  $ci: String
+  $name: String
+  $phone_number: String
+  $address: String
+) {
+  update_user(
+    where: { id: { _eq: $id } }
+    _set: {
+      ci: $ci
+      name: $name
+      phone_number: $phone_number
+      address: $address
+    }
+  ) {
+    affected_rows
+  }
+}
+
+
+mutation DeleteUser($id: Int, $active: Boolean) {
+  update_user(
+    where: { id: { _eq: $id } }
+    _set: { active: $active }
+  ) {
+    affected_rows
+  }
+}
