@@ -40,6 +40,14 @@
                     <span class="text-h5">{{ formTitle }}</span>
                   </v-card-title>
                   <v-card-text>
+                    <div v-if="editedIndex != -1" class="item-info">
+                      <span>Creado por: {{ editedItem.created.name }}</span
+                      ><br />
+                      <span
+                        >Última modificación por:
+                        {{ editedItem.updated.name }}</span
+                      >
+                    </div>
                     <v-container>
                       <v-row>
                         <v-col cols="12">
@@ -230,6 +238,7 @@ export default {
     },
   },
   computed: {
+    userData() { return this.$store.state.user },
     formTitle() {
       return this.editedIndex === -1 ? "Nuevo contacto" : "Editar contacto";
     },
@@ -251,7 +260,7 @@ export default {
         phonenumber: variables.phonenumber,
         address: variables.address,
         type: variables.type == "Cliente" ? "C" : "P",
-        user: 1,
+        user: this.userData.id,
       };
       this.$store
         .dispatch("createContact", mappedVariables)
@@ -271,7 +280,7 @@ export default {
         phonenumber: contact.phonenumber,
         address: contact.address,
         type: contact.type == "Cliente" ? "C" : "P",
-        user: 1,
+        user: this.userData.id,
         id: contact.id,
       };
       this.$store
@@ -300,7 +309,7 @@ export default {
       const mappedVariables = {
         active: false,
         id: this.editedItem.id,
-        user: 1,
+        user: this.userData.id,
       };
       this.$store
         .dispatch("deleteContact", mappedVariables)
