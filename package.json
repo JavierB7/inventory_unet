@@ -17,6 +17,7 @@
     "firebase": "^9.9.1",
     "graphql-tag": "^2.12.6",
     "nuxt": "^2.15.7",
+    "vue-html2pdf": "^1.8.0",
     "vuetify": "^2.5.5"
   },
   "devDependencies": {

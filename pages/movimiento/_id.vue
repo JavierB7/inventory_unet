@@ -18,12 +18,6 @@
         <section slot="pdf-content">
           <div class="container-pdf">
             <div class="header-img">
-              <v-img
-                class="img"
-                contain
-                eager
-                :src="require('@/assets/images/logos/logotipo.png')"
-              />
               <div>
                 <div class="header">
                   <h1 class="title">Nota de Entrega</h1>
