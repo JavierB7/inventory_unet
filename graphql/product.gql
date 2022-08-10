@@ -101,6 +101,22 @@ mutation EditProductImage(
   }
 }
 
+mutation UpdateProductQuantity(
+  $id: Int
+  $quantity: Int
+  $user: Int
+) {
+  update_product(
+    where: { id: { _eq: $id } }
+    _set: {
+      stock: $quantity
+      last_updated_by_id: $user
+    }
+  ) {
+    affected_rows
+  }
+}
+
 mutation DeleteProduct($id: Int, $user: Int, $active: Boolean) {
   update_product(
     where: { id: { _eq: $id } }

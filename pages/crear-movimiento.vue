@@ -46,7 +46,7 @@
             <v-col cols="12" sm="6" md="5">
               <v-text-field
                 v-model="selectedNumber"
-                label="Número*"
+                label="Código*"
                 :rules="[(v) => !!v || 'Campo requerido']"
                 required
               ></v-text-field>
@@ -163,7 +163,11 @@
                               v-model="editedItem.quantity"
                               label="Cantidad*"
                               required
-                              :rules="[(v) => !!v || 'Campo requerido']"
+                              :rules="[
+                                (v) => !!v || 'Campo requerido',
+                                (v) => Number.isInteger(Number(v)) || 'El valor debe ser un número.',
+                                (v) => Number.isInteger(Number(v)) && Number(v) > 0 || 'La cantidad debe ser positiva.',
+                              ]"
                             ></v-text-field>
                           </v-col>
                         </v-row>
@@ -173,7 +177,9 @@
                               v-model="editedItem.price"
                               label="Precio*"
                               required
-                              :rules="[(v) => !!v || 'Campo requerido']"
+                              :rules="[
+                                (v) => !!v || 'Campo requerido'
+                              ]"
                             ></v-text-field>
                           </v-col>
                         </v-row>
@@ -276,7 +282,7 @@ export default {
       valid: true,
       loadingButton: false,
       typeRules: [v => !!v || 'Tipo es requerido'],
-      numberRules: [v => !!v || 'Número es requerido'],
+      numberRules: [v => !!v || 'Código es requerido'],
       validDialog: true,
       creationDate: new Date().toISOString().slice(0, 10),
       movesLines: [],
@@ -433,8 +439,30 @@ export default {
     },
     async save() {
       this.$refs.form.validate();
-
       if (this.$refs.form.validate()) {
+        if (this.editedItem.price) {
+          if(this.editedItem.price.includes("$")) {
+            const price = this.editedItem.price.replace("$", "");
+            if(isNaN(price)){
+              alert("No puede ingresar un precio no numérico.")
+              return;
+            }
+            if(Number(price) < 0){
+              alert("No puede ingresar un precio negativo.")
+              return;
+            }
+          } else {
+            const price = this.editedItem.price;
+            if(isNaN(price)){
+              alert("No puede ingresar un precio no numérico.")
+              return;
+            }
+            if(Number(price) < 0){
+              alert("No puede ingresar un precio negativo.")
+              return;
+            }
+          }
+        }
         if (this.editedIndex > -1) {
           //Editar linea
           Object.assign(this.movesLines[this.editedIndex], this.editedItem);

@@ -304,6 +304,7 @@
                           <v-text-field
                             v-model="editedItem.quantity"
                             label="Cantidad"
+                            :rules="[(v) => !!v || 'Campo requerido']"
                           ></v-text-field>
                         </v-col>
                       </v-row>
@@ -662,6 +663,37 @@ export default {
         });
     },
     async save() {
+      if(!this.editedItem.quantity){
+        alert("Por favor ingrese una cantidad.")
+        return;
+      }
+      if(!this.editedItem.price){
+        alert("Por favor ingrese un precio.")
+        return;
+      }
+      if (this.editedItem.price) {
+          if(this.editedItem.price.includes("$")) {
+            const price = this.editedItem.price.replace("$", "");
+            if(isNaN(price)){
+              alert("No puede ingresar un precio no numérico.")
+              return;
+            }
+            if(Number(price) < 0){
+              alert("No puede ingresar un precio negativo.")
+              return;
+            }
+          } else {
+            const price = this.editedItem.price;
+            if(isNaN(price)){
+              alert("No puede ingresar un precio no numérico.")
+              return;
+            }
+            if(Number(price) < 0){
+              alert("No puede ingresar un precio negativo.")
+              return;
+            }
+          }
+        }
       if (this.editedIndex > -1) {
         Object.assign(this.movesLines[this.editedIndex], this.editedItem);
       } else {

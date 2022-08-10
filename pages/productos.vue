@@ -107,6 +107,7 @@
                             dense
                             v-model="editedItem.minQuantity"
                             label="Cantidad minima"
+                            :rules="[(v) => Number.isInteger(Number(v)) || 'El valor debe ser un número.']"
                           ></v-text-field>
                         </v-col>
                         <v-col cols="12">
@@ -114,6 +115,7 @@
                             dense
                             v-model="editedItem.maxQuantity"
                             label="Cantidad máxima"
+                            :rules="[(v) => Number.isInteger(Number(v)) || 'El valor debe ser un número.']"
                           ></v-text-field>
                         </v-col>
                         <v-col>
@@ -369,6 +371,7 @@ export default {
   },
   methods: {
     async createProduct(variables, file) {
+      
       const mappedVariables = {
         code: variables.code,
         name: variables.name,
@@ -492,6 +495,29 @@ export default {
       this.$refs.form.validate();
 
       if (this.$refs.form.validate()) {
+        if (this.editedItem.price) {
+          if(this.editedItem.price.includes("$")) {
+            const price = this.editedItem.price.replace("$", "");
+            if(isNaN(price)){
+              alert("No puede ingresar un precio no numérico.")
+              return;
+            }
+            if(Number(price) < 0){
+              alert("No puede ingresar un precio negativo.")
+              return;
+            }
+          } else {
+            const price = this.editedItem.price;
+            if(isNaN(price)){
+              alert("No puede ingresar un precio no numérico.")
+              return;
+            }
+            if(Number(price) < 0){
+              alert("No puede ingresar un precio negativo.")
+              return;
+            }
+          }
+        }
         if (this.editedIndex > -1) {
           await this.editProduct(this.editedItem);
         } else {
