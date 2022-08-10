@@ -185,8 +185,8 @@
           <span>
             {{ item.stock }}
             <br/>
-            <small v-if="item.lowStock" style="color: red;">
-              (Reservas bajas - comprar {{item.maxQuantity}} unidades)
+            <small v-if="item.stock < item.reorderPoint" style="color: red;">
+              (Reservas bajas - comprar {{item.reorderPoint}} unidades)
             </small>
           </span>
         </template>
@@ -289,6 +289,8 @@ export default {
           this.productsInfo = [];
         }
         for (let p of data.product) {
+          const point = this.reorderPoint(p);
+          console.log("AHHHH: ", point);
           this.productsInfo.push({
             code: p.code,
             name: p.name,
@@ -302,6 +304,7 @@ export default {
             id: p.id,
             created: p.created_by,
             updated: p.updated_by,
+            reorderPoint: point
           });
         }
       },
@@ -355,10 +358,12 @@ export default {
       return this.editedIndex === -1 ? "Nuevo producto" : "Editar producto";
     },
     customProduct() {
-      return this.productsInfo.map((product) => ({
+      const products =  this.productsInfo.map((product) => ({
         ...product,
         lowStock: product.stock < product.minQuantity
       }));
+      console.log("Products: ", products);
+      return products;
     },
   },
   watch: {
@@ -449,6 +454,44 @@ export default {
           this.error = err.message;
         });
     },
+    reorderPoint(product){
+      const today = new Date();
+      const todayLastYear = new Date();
+      const start_date = (new Date(todayLastYear.setFullYear(todayLastYear.getFullYear() - 1))).toLocaleString().split(',')[0];
+      const end_date = today.toLocaleString().split(',')[0];
+      const mappedVariables = {
+        "id": product.id,
+        "start_date": start_date,
+        "end_date": end_date
+      }
+      let average = 0;
+      this.$store
+        .dispatch("GetPreOrderPoint", mappedVariables)
+        .then(async (data) => {
+          average = data.data.inventory_movement_line_aggregate.aggregate.sum.quantity;
+          this.$store
+            .dispatch("GetReceptionDates", {"product": product.id})
+            .then(async (data) => {
+              const start = data.data.inventory_movement_line[0].inventory_movement.date;
+              let endDate = data.data.inventory_movement_line[0].inventory_movement.confirmation_date;
+              endDate = data.data.inventory_movement_line[0].inventory_movement.confirmation_date.split("T")[0];
+              const days = Math.round((new Date(start)-new Date(endDate))/(1000*60*60*24));
+              if(days < 0){
+                days = 1;
+              }
+              const point = (average * days) + product.minQuantity
+              return point;
+            })
+            .catch(err => {
+              this.error = err.message;
+              return 0;
+            });
+        })
+        .catch(err => {
+          this.error = err.message;
+          return 0;
+        });
+    },
     editItem(item) {
       this.editedIndex = this.customProduct.indexOf(item);
       this.editedItem = Object.assign({}, item);
@@ -457,7 +500,7 @@ export default {
     deleteItem(item) {
       this.editedIndex = this.customProduct.indexOf(item);
       this.editedItem = Object.assign({}, item);
-      this.dialogDelete = true;
+      this.dialogDelete = true; 
     },
     deleteItemConfirm() {
       this.customProduct.splice(this.editedIndex, 1);

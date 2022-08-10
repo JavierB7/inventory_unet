@@ -117,6 +117,25 @@ mutation UpdateProductQuantity(
   }
 }
 
+query GetPreOrderPointData($id: Int, $start_date: timestamp, $end_date: timestamp) {
+  inventory_movement_line_aggregate(where: {productLine: {id: {_eq: $id}}, movement_type: {_eq: "V"}, inventory_movement: {confirmation_date: {_gte: $start_date, _lte: $end_date}}}) {
+    aggregate {
+      sum {
+        quantity
+      }
+    }
+  }
+}
+
+query GetReceptionDates($product: Int) {
+  inventory_movement_line(where: {product: {_eq: $product}, inventory_movement: {confirmation_date: {_is_null: false}, type: {_eq: "C"}}}, order_by: {inventory_movement: {date: desc}}, limit: 1){
+    inventory_movement {
+      date
+      confirmation_date
+    }
+  }
+}
+
 mutation DeleteProduct($id: Int, $user: Int, $active: Boolean) {
   update_product(
     where: { id: { _eq: $id } }
