@@ -1,4 +1,4 @@
-query Products($active: Boolean!) {
+query Products($active: Boolean!, $start_date: timestamp!) {
   product(where: { active: { _eq: $active } }) {
     id
     code
@@ -24,6 +24,19 @@ query Products($active: Boolean!) {
     updated_by{
       id
       name
+    }
+    inventory_movement_lines_aggregate(where: {inventory_movement: {confirmation_date: {_gte: $start_date, _lte: "now()"}}, movement_type: {_eq: "V"}}) {
+      aggregate {
+        sum {
+          quantity
+        }
+      }
+    }
+    inventory_movement_lines(where: {inventory_movement: {confirmation_date: {_is_null: false}, type: {_eq: "C"}}}, order_by: {inventory_movement: {date: desc}}, limit: 1){
+      inventory_movement {
+        date
+        confirmation_date
+      }
     }
   }
 }
@@ -114,25 +127,6 @@ mutation UpdateProductQuantity(
     }
   ) {
     affected_rows
-  }
-}
-
-query GetPreOrderPointData($id: Int, $start_date: timestamp, $end_date: timestamp) {
-  inventory_movement_line_aggregate(where: {productLine: {id: {_eq: $id}}, movement_type: {_eq: "V"}, inventory_movement: {confirmation_date: {_gte: $start_date, _lte: $end_date}}}) {
-    aggregate {
-      sum {
-        quantity
-      }
-    }
-  }
-}
-
-query GetReceptionDates($product: Int) {
-  inventory_movement_line(where: {product: {_eq: $product}, inventory_movement: {confirmation_date: {_is_null: false}, type: {_eq: "C"}}}, order_by: {inventory_movement: {date: desc}}, limit: 1){
-    inventory_movement {
-      date
-      confirmation_date
-    }
   }
 }
 

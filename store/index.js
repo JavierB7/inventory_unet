@@ -5,8 +5,6 @@ import {
   EditProduct,
   DeleteProduct,
   UpdateProductQuantity,
-  GetPreOrderPointData,
-  GetReceptionDates,
   EditProductImage
 } from "../graphql/product.gql";
 import { CreateUser, DeleteUser, EditUser, UsersByEmail } from "../graphql/user.gql";
@@ -53,28 +51,6 @@ const store = () => {
             mutation: DeleteMoveLines,
             variables: { ...variables }
           });
-        } catch (e) {
-          console.log("Error ", e);
-        }
-      },
-      async GetPreOrderPoint({ commit }, variables) {
-        try {
-          let response = await this.app.apolloProvider.defaultClient.mutate({
-            mutation: GetPreOrderPointData,
-            variables: { ...variables }
-          });
-          return response;
-        } catch (e) {
-          console.log("Error ", e);
-        }
-      },
-      async GetReceptionDates({ commit }, variables) {
-        try {
-          let response = await this.app.apolloProvider.defaultClient.mutate({
-            mutation: GetReceptionDates,
-            variables: { ...variables }
-          });
-          return response;
         } catch (e) {
           console.log("Error ", e);
         }
