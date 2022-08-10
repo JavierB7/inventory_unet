@@ -185,8 +185,8 @@
           <span>
             {{ item.stock }}
             <br/>
-            <small v-if="item.lowStock" style="color: red;">
-              (Reservas bajas - comprar {{item.maxQuantity}} unidades)
+            <small v-if="item.stock <= item.minQuantity && item.reorderPoint !== 0" style="color: red;">
+              (Reservas bajas - ordenar {{item.reorderPoint}} unidades)
             </small>
           </span>
         </template>
@@ -262,7 +262,9 @@ export default {
         created: "",
         updated: "",
         minQuantity: 0,
-        maxQuantity: 0
+        maxQuantity: 0,
+        dailyAverage: 0,
+        deliveredTime: 0,
       },
       defaultItem: {
         code: "",
@@ -275,7 +277,9 @@ export default {
         created: "",
         updated: "",
         minQuantity: 0,
-        maxQuantity: 0
+        maxQuantity: 0,
+        dailyAverage: 0,
+        deliveredTime: 0,
       },
       file: null,
     };
@@ -302,12 +306,17 @@ export default {
             id: p.id,
             created: p.created_by,
             updated: p.updated_by,
+            dailyAverage: this.getDailyAverage(p.inventory_movement_lines_aggregate.aggregate.sum.quantity),
+            deliveredTime: this.getDeliveredTimeInDays(p)
           });
         }
       },
       pollInterval: 10000,
       variables() {
-        return { active: true };
+        return {
+          active: true,
+          start_date: this.getLastYearDate()
+        };
       },
     },
     category: {
@@ -355,10 +364,12 @@ export default {
       return this.editedIndex === -1 ? "Nuevo producto" : "Editar producto";
     },
     customProduct() {
-      return this.productsInfo.map((product) => ({
+      const products =  this.productsInfo.map((product) => ({
         ...product,
-        lowStock: product.stock < product.minQuantity
+        lowStock: product.stock < product.minQuantity,
+        reorderPoint: this.getReorderPoint(product)
       }));
+      return products;
     },
   },
   watch: {
@@ -370,8 +381,34 @@ export default {
     },
   },
   methods: {
+    getReorderPoint(product){
+      let reorderPoint = (product.dailyAverage * product.deliveredTime) + product.minQuantity;
+      return isNaN(reorderPoint) ? 0 : Math.round(reorderPoint)
+    },
+    getLastYearDate(){
+      const fecha = new Date((new Date().setFullYear(new Date().getFullYear() - 1)));
+      return fecha.toLocaleDateString();
+    },
+    getDeliveredTimeInDays(product){
+      const lastInventoryMovement = product.inventory_movement_lines.length > 0 ? product.inventory_movement_lines[0].inventory_movement : null;
+      if (!lastInventoryMovement) return;
+      const confirmationDate = new Date(lastInventoryMovement.confirmation_date);
+      const creationDate = new Date(lastInventoryMovement.date);
+      let differenceInTime = confirmationDate.getTime() - creationDate.getTime();
+      if (!differenceInTime){
+        differenceInTime = 0;
+      }
+      return differenceInTime / (1000 * 3600 * 24);
+    },
+    getDailyAverage(lastYearOuts){
+      let average = 0;
+      if (lastYearOuts) {
+        average = lastYearOuts / 365;
+      }
+      return average;
+    },
     async createProduct(variables, file) {
-      
+
       const mappedVariables = {
         code: variables.code,
         name: variables.name,
