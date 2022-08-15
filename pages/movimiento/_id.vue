@@ -706,6 +706,10 @@ export default {
       }
       this.close();
     },
+    getLastYearDate(){
+      const fecha = new Date((new Date().setFullYear(new Date().getFullYear() - 1)));
+      return fecha.toLocaleDateString();
+    },
     editItem(item) {
       this.editedIndex = this.movesLines.findIndex(
         element => element.id == item.id
@@ -798,7 +802,7 @@ export default {
       },
       pollInterval: 10000,
       variables() {
-        return { active: true };
+        return { active: true, start_date: this.getLastYearDate() };
       }
     },
     contact: {
