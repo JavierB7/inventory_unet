@@ -362,7 +362,7 @@
 </template>
 <script>
 import { Movement } from "~/graphql/movement.gql";
-import { Products } from "~/graphql/product.gql";
+import { ProductsForMove } from "~/graphql/product.gql";
 import { Contacts } from "~/graphql/contact.gql";
 import VueHtml2pdf from "vue-html2pdf";
 
@@ -784,7 +784,7 @@ export default {
     },
     product: {
       prefetch: true,
-      query: Products,
+      query: ProductsForMove,
       result({ data }) {
         if (this.productsInfo.lenght != 0) {
           this.productsInfo = [];
@@ -802,7 +802,9 @@ export default {
       },
       pollInterval: 10000,
       variables() {
-        return { active: true, start_date: this.getLastYearDate() };
+        return {
+          active: true
+        };
       }
     },
     contact: {

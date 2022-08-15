@@ -41,6 +41,36 @@ query Products($active: Boolean!, $start_date: timestamp!) {
   }
 }
 
+query ProductsForMove($active: Boolean!) {
+  product(where: { active: { _eq: $active } }) {
+    id
+    code
+    name
+    price
+    stock
+    active
+    image
+    min_quantity
+    max_quantity
+    brand {
+      id
+      name
+    }
+    category {
+      id
+      name
+    }
+    created_by {
+      id
+      name
+    }
+    updated_by{
+      id
+      name
+    }
+  }
+}
+
 mutation CreateProduct(
   $name: String
   $code: String
