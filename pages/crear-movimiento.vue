@@ -218,7 +218,7 @@
 </template>
 
 <script>
-import { Products } from "~/graphql/product.gql";
+import { ProductsForMove } from "~/graphql/product.gql";
 import { Contacts } from "~/graphql/contact.gql";
 
 export default {
@@ -230,7 +230,7 @@ export default {
   apollo: {
     product: {
       prefetch: true,
-      query: Products,
+      query: ProductsForMove,
       result({ data }) {
         if (this.productsInfo.lenght != 0) {
           this.productsInfo = [];
